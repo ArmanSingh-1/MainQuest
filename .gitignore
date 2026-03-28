@@ -1,2 +1,15 @@
-# OS Related 
+# OS Related
 .DS_Store
+
+# Editor directories
+.vscode/
+.idea/
+
+# Frontend dependencies
+node_modules/
+
+# Vite PWA dev service worker
+dev-dist/
+
+# Environment variables
+.env

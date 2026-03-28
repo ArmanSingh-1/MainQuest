@@ -1,0 +1,5 @@
+.otp-page { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 60px); padding: 32px; }
+.otp-page__inputs { display: flex; gap: 8px; justify-content: center; margin-bottom: 32px; }
+.otp-page__digit { width: 48px; height: 56px; text-align: center; font-size: 1.5rem; font-weight: 700; background: var(--color-bg); border: 1.5px solid var(--color-border); border-radius: 12px; color: white; transition: all 150ms ease; }
+.otp-page__digit:focus { border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1); }
+.otp-page__error { padding: 12px; background: rgba(239, 68, 68, 0.1); color: #EF4444; border-radius: 8px; font-size: 14px; margin-bottom: 24px; text-align: center; }

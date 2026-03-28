@@ -1,0 +1,24 @@
+{
+  "name": "ARKA — AI-Powered Parametric Insurance",
+  "short_name": "ARKA",
+  "description": "Protect your delivery income against rain, heatwaves, pollution & strikes.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0D0D10",
+  "theme_color": "#8B5CF6",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

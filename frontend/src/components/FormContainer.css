@@ -1,0 +1,13 @@
+.form-container {
+  width: 100%;
+  padding: 32px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 10;
+}
+.form-container__header { text-align: center; margin-bottom: 32px; }
+.form-container__title { font-size: 1.75rem; font-weight: 700; margin-bottom: 8px; }
+.form-container__subtitle { font-size: 14px; color: var(--color-text-secondary); }

@@ -1,0 +1,9 @@
+.input-field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+.input-field__label { font-size: 14px; font-weight: 500; color: var(--color-text-secondary); margin-left: 2px; }
+.input-field__input { width: 100%; padding: 14px 16px; background: var(--color-bg); border: 1.5px solid var(--color-border); border-radius: 12px; color: white; transition: all 150ms ease; }
+.input-field__input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1); }
+.input-field__input.error { border-color: #EF4444; }
+.input-field__error { color: #EF4444; font-size: 12px; margin-top: 4px; }
+.input-field__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.input-field__chip { padding: 8px 16px; background: var(--color-surface); color: var(--color-text-secondary); border: 1px solid var(--color-border); border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 150ms ease; }
+.input-field__chip.selected { background: var(--color-primary-gradient); color: white; border-color: transparent; }

@@ -164,18 +164,15 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-shell">
+      <div className="auth-shell-bg" />
+      <div className="auth-shell-overlay" />
+      
       <div className="auth-content">
 
         {/* ── Header ── */}
         <header className="auth-header" style={{ paddingBottom: 'var(--sp-lg)' }}>
           <div className="arka-logo">
-            <div className="arka-logo-icon">
-              <Shield size={20} strokeWidth={2.5} />
-            </div>
-            <div className="arka-logo-wordmark">
-              <span className="arka-logo-name">ARKA</span>
-              <span className="arka-logo-tagline">Income Protection</span>
-            </div>
+            <img src="/logo.png" alt="ARKA Logo" className="arka-logo-img" />
           </div>
 
           <div className="auth-headline">

@@ -46,13 +46,7 @@ export default function DashboardPage() {
       {/* Top bar */}
       <div className="dashboard-topbar">
         <div className="arka-logo">
-          <div className="arka-logo-icon">
-            <Shield size={18} strokeWidth={2.5} />
-          </div>
-          <div className="arka-logo-wordmark">
-            <span className="arka-logo-name">ARKA</span>
-            <span className="arka-logo-tagline">Income Protection</span>
-          </div>
+          <img src="/logo.png" alt="ARKA" style={{ width: 110, height: 'auto', borderRadius: 4, display: 'block' }} />
         </div>
         <button className="btn-ghost dashboard-signout" onClick={handleSignOut}>
           <LogOut size={14} />

@@ -74,18 +74,15 @@ export default function LoginPage() {
 
   return (
     <div className="auth-shell">
+      <div className="auth-shell-bg" />
+      <div className="auth-shell-overlay" />
+      
       <div className="auth-content">
 
         {/* Header */}
         <header className="auth-header">
           <div className="arka-logo">
-            <div className="arka-logo-icon">
-              <Shield size={20} strokeWidth={2.5} />
-            </div>
-            <div className="arka-logo-wordmark">
-              <span className="arka-logo-name">ARKA</span>
-              <span className="arka-logo-tagline">Income Protection</span>
-            </div>
+            <img src="/logo.png" alt="ARKA Logo" className="arka-logo-img" />
           </div>
 
           <div className="auth-headline">
@@ -186,17 +183,26 @@ export default function LoginPage() {
         </form>
 
         {/* Footer */}
-        <div className="auth-footer">
-          <span>New to ARKA?</span>
-          <Link to="/register" className="btn-link">Create account</Link>
-        </div>
+        <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+          <div className="auth-footer" style={{ marginTop: 0 }}>
+            New to ARKA? <Link to="/register" className="btn-link">Create account</Link>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', opacity: 0.9 }}>
+            {/* Fake text logos to match concept */}
+            <span style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.5px', color: '#fff' }}>zepto</span>
+            <span style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.5px', color: '#fff' }}>blinkit</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', fontWeight: 800, color: '#fff' }}>
+              <Bike size={16} strokeWidth={3} /> Swiggy instamart
+            </span>
+          </div>
 
-        {/* Trust badge */}
-        <div style={{ marginTop: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-          <Bike size={13} color="var(--text-muted)" />
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-            Built for Zepto, Blinkit & Swiggy Instamart delivery partners
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.5 }}>
+            <Shield size={12} />
+            <span style={{ fontSize: '11px', color: '#fff' }}>
+              Built for Zepto, Blinkit & Swiggy Instamart delivery partners
+            </span>
+          </div>
         </div>
 
       </div>

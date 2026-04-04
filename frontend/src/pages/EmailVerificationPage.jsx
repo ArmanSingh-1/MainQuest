@@ -9,7 +9,6 @@ export default function EmailVerificationPage() {
   const [resendLoading, setResendLoading] = useState(false)
   const [resendSuccess, setResendSuccess] = useState(false)
   const [resendError, setResendError] = useState('')
-  const [cooldownSecs, setCooldownSecs] = useState(0)
 
   // Email saved in location state by RegisterPage
   const email = location.state?.email || ''
@@ -25,16 +24,8 @@ export default function EmailVerificationPage() {
     return () => subscription.unsubscribe()
   }, [navigate])
 
-  // Countdown timer for resend cooldown
-  useEffect(() => {
-    if (cooldownSecs <= 0) return
-    const timer = setTimeout(() => setCooldownSecs(cooldownSecs - 1), 1000)
-    return () => clearTimeout(timer)
-  }, [cooldownSecs])
-
   const handleResend = async () => {
     if (!email) { setResendError('Email not found. Please register again.'); return }
-    if (cooldownSecs > 0) { setResendError(`Please wait ${cooldownSecs}s before resending.`); return }
     setResendLoading(true); setResendError(''); setResendSuccess(false)
     try {
       const { error } = await supabase.auth.resend({
@@ -46,7 +37,6 @@ export default function EmailVerificationPage() {
       })
       if (error) throw error
       setResendSuccess(true)
-      setCooldownSecs(60) // 60 second cooldown
     } catch (e) {
       setResendError(e.message || 'Failed to resend.')
     } finally {
@@ -105,14 +95,8 @@ export default function EmailVerificationPage() {
             </div>
           )}
 
-          <button onClick={handleResend} className="btn-ghost" disabled={resendLoading || cooldownSecs > 0} style={{ marginBottom: 20 }}>
-            {resendLoading ? (
-              <><span className="btn-spinner" /> Sending...</>
-            ) : cooldownSecs > 0 ? (
-              <><RefreshCw size={14} /> Resend in {cooldownSecs}s</>
-            ) : (
-              <><RefreshCw size={14} /> Resend verification email</>
-            )}
+          <button onClick={handleResend} className="btn-ghost" disabled={resendLoading} style={{ marginBottom: 20 }}>
+            {resendLoading ? <><span className="btn-spinner" /> Sending...</> : <><RefreshCw size={14} /> Resend verification email</>}
           </button>
 
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>

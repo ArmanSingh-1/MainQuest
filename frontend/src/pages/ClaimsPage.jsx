@@ -132,7 +132,9 @@ function ClaimCard({ claim, onAppeal }) {
               ['Disruption level',`${claim.disruption_level} — ${claim.disruption_level === 'Red' ? '100%' : '50%'} payout rate`],
               ['Fraud score',     claim.fraud_score != null ? `${claim.fraud_score}/100 — ${claim.fraud_score < 35 ? 'Low risk' : claim.fraud_score < 65 ? 'Medium' : 'High risk'}` : 'N/A'],
               ['Premium at filing',claim.premium_at_claim ? `₹${claim.premium_at_claim}` : '—'],
-              ['Payout amount',   claim.payout_amount > 0 ? `₹${claim.payout_amount.toLocaleString('en-IN')}` : 'None'],
+              ['Original payout',   claim.payout_amount > 0 ? `₹${claim.payout_amount.toLocaleString('en-IN')}` : 'None'],
+              ['Weekly UPI autopay deduction', `₹${Math.round(claim.payout_amount * 0.2).toLocaleString('en-IN')} (20% placeholder)`],
+              ['Final payout amount', claim.payout_amount > 0 ? `₹${Math.round(claim.payout_amount * 0.8).toLocaleString('en-IN')}` : 'None'],
               ['Filed at',        new Date(claim.created_at).toLocaleString('en-IN')],
               ...(claim.paid_at ? [['Paid at', new Date(claim.paid_at).toLocaleString('en-IN')]] : []),
             ].map(([l, v]) => (
@@ -146,6 +148,10 @@ function ClaimCard({ claim, onAppeal }) {
           {claim.notes && (
             <div className="claim-notes"><span className="claim-notes-l">System notes: </span>{claim.notes}</div>
           )}
+
+          <div className="claim-upi-note" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '6px', padding: '12px', marginTop: '12px', fontSize: '13px', color: '#f59e0b' }}>
+            <strong>UPI Autopay:</strong> Weekly UPI deduction is a placeholder feature. Real UPI integration to be implemented.
+          </div>
 
           {claim.status === 'rejected' && (
             <button className="claim-appeal-btn" onClick={() => onAppeal(claim)}>

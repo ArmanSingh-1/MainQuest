@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { supabase, FRONTEND_URL, REQUIRE_EMAIL_VERIFICATION, DEMO_MODE } from '../lib/supabase'
+import { supabase, FRONTEND_URL, DEMO_MODE, mockDemoSignup } from '../lib/supabase'
 import {
   Shield, Mail, Lock, Eye, EyeOff, User, Phone,
   AlertCircle, ArrowRight, CheckCircle2, ChevronLeft,
@@ -53,16 +53,8 @@ export default function RegisterPage() {
   const [loading, setLoading]         = useState(false)
   const [error, setError]             = useState('')
   const [success, setSuccess]         = useState('')
-  const [signupCooldown, setSignupCooldown] = useState(0)
 
   const strength = getStrength(password)
-
-  // Signup cooldown timer to prevent rate limiting
-  React.useEffect(() => {
-    if (signupCooldown <= 0) return
-    const timer = setTimeout(() => setSignupCooldown(signupCooldown - 1), 1000)
-    return () => clearTimeout(timer)
-  }, [signupCooldown])
 
   /* ── Validation ————————————————————————————————————————————— */
   const validateStep1 = () => {
@@ -103,42 +95,42 @@ export default function RegisterPage() {
   const handleRegister = async (e) => {
     e.preventDefault()
     setError('')
-    if (signupCooldown > 0) { setError(`Please wait ${signupCooldown}s before trying again.`); return }
     const err = validateStep2()
     if (err) { setError(err); return }
 
     setLoading(true)
     try {
-      let signUpData = null
-      
+      // ── DEMO MODE: skip real Supabase auth entirely — no email sent ──
       if (DEMO_MODE) {
-        // Demo mode: simulate signup without actual Supabase call (allows unlimited testing)
-        signUpData = {
-          user: {
-            id: 'demo-user-' + Math.random().toString(36).substr(2, 9),
-            email: email.trim().toLowerCase(),
-          },
-          error: null,
-        }
-      } else {
-        // Production mode: real Supabase signup
-        const { data, error: signUpError } = await supabase.auth.signUp({
-          email: email.trim().toLowerCase(),
-          password,
-          options: {
-            data: { full_name: fullName.trim(), phone: phone.trim() },
-            emailRedirectTo: FRONTEND_URL + '/dashboard',
-          }
+        mockDemoSignup({
+          email:              email.trim().toLowerCase(),
+          full_name:          fullName.trim(),
+          phone:              phone.trim(),
+          city:               city.trim(),
+          delivery_zone:      deliveryZone.trim(),
+          platform,
+          avg_weekly_income:  Number(avgIncome),
+          avg_weekly_hours:   Number(avgHours),
+          upi_id:             upiId.trim(),
         })
-        signUpData = { user: data?.user, error: signUpError }
+        // Skip email verification — go straight to dashboard
+        navigate('/dashboard', { replace: true })
+        return
       }
-      
-      if (signUpData.error) throw signUpData.error
-      if (!signUpData.user?.id) throw new Error('User creation failed. Please try again.')
 
-      // 2. Save full form data to localStorage.
-      //    After the user clicks the verification email link and is signed in,
-      //    App.jsx SIGNED_IN handler reads this and UPDATE the profile row.
+      // ── PRODUCTION: real Supabase signUp (sends verification email) ──
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: email.trim().toLowerCase(),
+        password,
+        options: {
+          data: { full_name: fullName.trim(), phone: phone.trim() },
+          emailRedirectTo: FRONTEND_URL + '/dashboard',
+        }
+      })
+      if (signUpError) throw signUpError
+
+      if (!data.user?.id) throw new Error('User creation failed. Please try again.')
+
       localStorage.setItem('arka_pending_profile', JSON.stringify({
         full_name:          fullName.trim(),
         phone:              phone.trim(),
@@ -151,15 +143,7 @@ export default function RegisterPage() {
         onboarding_complete: true,
       }))
 
-      // 3. Go to the email-verification waiting page or skip if not required
-      setSignupCooldown(30) // 30 second cooldown before can signup again
-      
-      if (REQUIRE_EMAIL_VERIFICATION && !DEMO_MODE) {
-        navigate('/verify-email', { state: { email: email.trim().toLowerCase() } })
-      } else {
-        // Dev mode: auto-proceed to dashboard (email not required)
-        navigate('/dashboard', { replace: true })
-      }
+      navigate('/verify-email', { state: { email: email.trim().toLowerCase() } })
     } catch (err) {
       const msg = err.message || 'Registration failed. Please try again.'
       if (msg.includes('already registered') || msg.includes('already exists')) {

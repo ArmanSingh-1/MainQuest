@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { supabase, API_URL } from '../lib/supabase'
+import { supabase, API_URL, DEMO_MODE } from '../lib/supabase'
 import {
   Shield, CheckCircle2, LogOut, CloudRain, Activity,
   IndianRupee, MapPin, ChevronRight, RefreshCw,
@@ -33,7 +33,15 @@ function AppNav({ profile }) {
   const navigate  = useNavigate()
   const location  = useLocation()
   const path      = location.pathname
-  const signOut   = () => supabase.auth.signOut()
+  const signOut = () => {
+    if (DEMO_MODE) {
+      localStorage.removeItem('arka_demo_user')
+      localStorage.removeItem('arka_demo_profile')
+      window.location.href = '/'
+    } else {
+      supabase.auth.signOut()
+    }
+  }
 
   return (
     <nav className="app-nav">
@@ -84,6 +92,16 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const init = async () => {
+      // ── DEMO MODE: load profile from localStorage ──
+      if (DEMO_MODE && localStorage.getItem('arka_demo_user') === 'true') {
+        const demoProfile = JSON.parse(localStorage.getItem('arka_demo_profile') || '{}')
+        setAuthUser({ id: demoProfile.id, email: demoProfile.email })
+        setProfile(demoProfile)
+        setLoading(false)
+        return
+      }
+
+      // ── PRODUCTION: real Supabase session ──
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         setAuthUser(user)

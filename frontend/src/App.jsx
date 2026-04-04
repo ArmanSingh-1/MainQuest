@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { supabase } from './lib/supabase'
+import { supabase, DEMO_MODE } from './lib/supabase'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
@@ -30,6 +30,14 @@ export default function App() {
   const [session, setSession] = useState(undefined)
 
   useEffect(() => {
+    // ── DEMO MODE: use localStorage profile as the session ──
+    if (DEMO_MODE && localStorage.getItem('arka_demo_user') === 'true') {
+      const profile = JSON.parse(localStorage.getItem('arka_demo_profile') || '{}')
+      setSession({ user: { id: profile.id || 'demo', email: profile.email || 'demo@arka.app' }, demo: true })
+      return
+    }
+
+    // ── PRODUCTION: real Supabase session ──
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       if (session?.user) completeProfileFromStorage(session.user.id)

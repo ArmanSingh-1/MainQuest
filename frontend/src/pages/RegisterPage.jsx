@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import {
   Shield, Mail, Lock, Eye, EyeOff, User, Phone,
@@ -31,6 +31,7 @@ const PLATFORMS = [
 ]
 
 export default function RegisterPage() {
+  const navigate = useNavigate()
   const [step, setStep]               = useState(1)
 
   // ── Step 1: Account Info ────────────────────────────────────────
@@ -99,46 +100,36 @@ export default function RegisterPage() {
 
     setLoading(true)
     try {
-      // 1. Create Supabase auth user
+      // 1. Create Supabase auth user (DB trigger auto-creates skeleton profile)
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
         password,
         options: {
-          data: {
-            full_name: fullName.trim(),
-            phone: phone.trim(),
-          }
+          data: { full_name: fullName.trim(), phone: phone.trim() },
+          emailRedirectTo: window.location.origin + '/dashboard',
         }
       })
       if (signUpError) throw signUpError
 
-      const userId = data.user?.id
-      if (!userId) throw new Error('User creation failed. Please try again.')
+      if (!data.user?.id) throw new Error('User creation failed. Please try again.')
 
-      // 2. Insert delivery worker profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: userId,
-          full_name: fullName.trim(),
-          email: email.trim().toLowerCase(),
-          phone: phone.trim(),
-          city: city.trim(),
-          delivery_zone: deliveryZone.trim(),
-          platform,
-          avg_weekly_income: Number(avgIncome),
-          avg_weekly_hours: Number(avgHours),
-          upi_id: upiId.trim(),
-          onboarding_complete: false,
-          policy_status: 'pending',
-          created_at: new Date().toISOString(),
-        })
+      // 2. Save full form data to localStorage.
+      //    After the user clicks the verification email link and is signed in,
+      //    App.jsx SIGNED_IN handler reads this and UPDATE the profile row.
+      localStorage.setItem('arka_pending_profile', JSON.stringify({
+        full_name:          fullName.trim(),
+        phone:              phone.trim(),
+        city:               city.trim(),
+        delivery_zone:      deliveryZone.trim(),
+        platform,
+        avg_weekly_income:  Number(avgIncome),
+        avg_weekly_hours:   Number(avgHours),
+        upi_id:             upiId.trim(),
+        onboarding_complete: true,
+      }))
 
-      if (profileError) {
-        console.error('Profile insert error:', profileError.message)
-      }
-
-      setSuccess('Account created! Check your email to verify your address before signing in.')
+      // 3. Go to the email-verification waiting page
+      navigate('/verify-email', { state: { email: email.trim().toLowerCase() } })
     } catch (err) {
       const msg = err.message || 'Registration failed. Please try again.'
       if (msg.includes('already registered') || msg.includes('already exists')) {

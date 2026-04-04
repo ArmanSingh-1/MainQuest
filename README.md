@@ -538,19 +538,6 @@ For a Phase 1–2 prototype, APScheduler embedded in the FastAPI process is suff
 
 ---
 
-## Constraints & Scope Boundaries
-
-As per hackathon requirements, ARKA **explicitly excludes**:
-- Health insurance or accident medical coverage
-- Vehicle repair or damage payouts
-- Life insurance
-- Coverage for events outside the registered delivery zone
-
-ARKA **only covers**:
-- Loss of income caused by objectively measurable external disruptions
-- Weekly parametric payouts based on pre-defined thresholds
-- Income protection for active, verified delivery partners
-
 > **Note on the 12-Week Premium Logic:** Workers pay their selected weekly premium from the moment they enroll. The initial premium is calculated using the self-reported income and zone data provided during onboarding — this serves as an estimate. After 12 active weeks, the AI Risk Assessment model recalculates the premium using actual verified delivery data, and the worker's premium is adjusted accordingly going forward. This is clearly disclosed at onboarding.
 
 ---

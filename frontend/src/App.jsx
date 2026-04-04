@@ -4,26 +4,47 @@ import { supabase } from './lib/supabase'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
+import PolicyEnrollmentPage from './pages/PolicyEnrollmentPage'
+import EmailVerificationPage from './pages/EmailVerificationPage'
+import LandingPage from './pages/LandingPage'
+import ClaimsPage from './pages/ClaimsPage'
 import PWAInstallPrompt from './components/PWAInstallPrompt'
 
+// After email verification, the SIGNED_IN event fires.
+// We then pull the full form data saved in localStorage and update the profile.
+async function completeProfileFromStorage(userId) {
+  const raw = localStorage.getItem('arka_pending_profile')
+  if (!raw) return
+  try {
+    const data = JSON.parse(raw)
+    const { error } = await supabase.from('profiles').update(data).eq('id', userId)
+    if (!error) {
+      localStorage.removeItem('arka_pending_profile')
+    }
+  } catch (e) {
+    console.error('Profile completion error:', e)
+  }
+}
+
 export default function App() {
-  const [session, setSession] = useState(undefined) // undefined = loading
+  const [session, setSession] = useState(undefined)
 
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
+      if (session?.user) completeProfileFromStorage(session.user.id)
     })
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session)
+      if (event === 'SIGNED_IN' && session?.user) {
+        completeProfileFromStorage(session.user.id)
+      }
     })
 
     return () => subscription.unsubscribe()
   }, [])
 
-  // Loading — prevent flash
   if (session === undefined) {
     return (
       <div className="app-loading">
@@ -36,13 +57,14 @@ export default function App() {
     <BrowserRouter>
       <PWAInstallPrompt />
       <Routes>
-        <Route path="/login" element={!session ? <LoginPage /> : <Navigate to="/dashboard" replace />} />
-        <Route path="/register" element={!session ? <RegisterPage /> : <Navigate to="/dashboard" replace />} />
-        <Route
-          path="/dashboard"
-          element={session ? <DashboardPage /> : <Navigate to="/login" replace />}
-        />
-        <Route path="*" element={<Navigate to={session ? '/dashboard' : '/login'} replace />} />
+        <Route path="/"             element={!session ? <LandingPage />       : <Navigate to="/dashboard" replace />} />
+        <Route path="/login"        element={!session ? <LoginPage />         : <Navigate to="/dashboard" replace />} />
+        <Route path="/register"     element={!session ? <RegisterPage />      : <Navigate to="/dashboard" replace />} />
+        <Route path="/verify-email" element={<EmailVerificationPage />} />
+        <Route path="/dashboard"    element={session   ? <DashboardPage />    : <Navigate to="/login"     replace />} />
+        <Route path="/policy"       element={session   ? <PolicyEnrollmentPage /> : <Navigate to="/login" replace />} />
+        <Route path="/claims"       element={session   ? <ClaimsPage />           : <Navigate to="/login" replace />} />
+        <Route path="*"             element={<Navigate to={session ? '/dashboard' : '/'} replace />} />
       </Routes>
     </BrowserRouter>
   )

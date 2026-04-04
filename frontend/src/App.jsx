@@ -4,6 +4,7 @@ import { supabase } from './lib/supabase'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
+import AdminDashboardPage from './pages/AdminDashboardPage'
 import PWAInstallPrompt from './components/PWAInstallPrompt'
 
 export default function App() {
@@ -42,6 +43,7 @@ export default function App() {
           path="/dashboard"
           element={session ? <DashboardPage /> : <Navigate to="/login" replace />}
         />
+        <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="*" element={<Navigate to={session ? '/dashboard' : '/login'} replace />} />
       </Routes>
     </BrowserRouter>

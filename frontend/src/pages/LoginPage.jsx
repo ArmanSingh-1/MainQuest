@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { supabase, DEMO_MODE } from '../lib/supabase'
 import {
   Shield, Mail, Lock, Eye, EyeOff,
   AlertCircle, ArrowRight, CheckCircle2, Bike
@@ -69,6 +69,16 @@ export default function LoginPage() {
       setError(err.message || 'Could not send reset link. Try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDemoLogin = () => {
+    // Demo mode: skip all authentication and go straight to dashboard
+    if (DEMO_MODE) {
+      localStorage.setItem('arka_demo_user', 'true')
+      window.location.href = '/dashboard'
+    } else {
+      window.location.href = '/register'
     }
   }
 
@@ -179,6 +189,18 @@ export default function LoginPage() {
               <>Sign In <ArrowRight size={16} /></>
             )}
           </button>
+
+          {DEMO_MODE && (
+            <button
+              type="button"
+              onClick={handleDemoLogin}
+              className="btn-ghost"
+              disabled={loading}
+              style={{ marginTop: '8px' }}
+            >
+              <Bike size={16} /> Demo Login (Test Mode Only)
+            </button>
+          )}
 
         </form>
 

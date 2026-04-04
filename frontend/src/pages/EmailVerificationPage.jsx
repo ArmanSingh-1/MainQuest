@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { supabase, FRONTEND_URL } from '../lib/supabase'
 import { Mail, RefreshCw, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react'
 
 export default function EmailVerificationPage() {
@@ -28,7 +28,13 @@ export default function EmailVerificationPage() {
     if (!email) { setResendError('Email not found. Please register again.'); return }
     setResendLoading(true); setResendError(''); setResendSuccess(false)
     try {
-      const { error } = await supabase.auth.resend({ type: 'signup', email })
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: {
+          emailRedirectTo: FRONTEND_URL + '/dashboard',
+        },
+      })
       if (error) throw error
       setResendSuccess(true)
     } catch (e) {

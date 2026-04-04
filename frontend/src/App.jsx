@@ -30,8 +30,9 @@ export default function App() {
   const [session, setSession] = useState(undefined)
 
   useEffect(() => {
-    // ── DEMO MODE: use localStorage profile as the session ──
-    if (DEMO_MODE && localStorage.getItem('arka_demo_user') === 'true') {
+    // ── Always check for demo user in localStorage first ──
+    // mockDemoSignup() sets 'arka_demo_user' = 'true' on both local & hosted.
+    if (localStorage.getItem('arka_demo_user') === 'true') {
       const profile = JSON.parse(localStorage.getItem('arka_demo_profile') || '{}')
       setSession({ user: { id: profile.id || 'demo', email: profile.email || 'demo@arka.app' }, demo: true })
       return

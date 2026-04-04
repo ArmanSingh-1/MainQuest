@@ -100,38 +100,10 @@ export default function RegisterPage() {
 
     setLoading(true)
     try {
-      // ── DEMO MODE: skip real Supabase auth entirely — no email sent ──
-      if (DEMO_MODE) {
-        mockDemoSignup({
-          email:              email.trim().toLowerCase(),
-          full_name:          fullName.trim(),
-          phone:              phone.trim(),
-          city:               city.trim(),
-          delivery_zone:      deliveryZone.trim(),
-          platform,
-          avg_weekly_income:  Number(avgIncome),
-          avg_weekly_hours:   Number(avgHours),
-          upi_id:             upiId.trim(),
-        })
-        // Skip email verification — go straight to dashboard
-        navigate('/dashboard', { replace: true })
-        return
-      }
-
-      // ── PRODUCTION: real Supabase signUp (sends verification email) ──
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: email.trim().toLowerCase(),
-        password,
-        options: {
-          data: { full_name: fullName.trim(), phone: phone.trim() },
-          emailRedirectTo: FRONTEND_URL + '/dashboard',
-        }
-      })
-      if (signUpError) throw signUpError
-
-      if (!data.user?.id) throw new Error('User creation failed. Please try again.')
-
-      localStorage.setItem('arka_pending_profile', JSON.stringify({
+      // ── Always use demo/local signup — bypasses Supabase email entirely ──
+      // This avoids rate limits on both local and hosted environments.
+      mockDemoSignup({
+        email:              email.trim().toLowerCase(),
         full_name:          fullName.trim(),
         phone:              phone.trim(),
         city:               city.trim(),
@@ -140,17 +112,10 @@ export default function RegisterPage() {
         avg_weekly_income:  Number(avgIncome),
         avg_weekly_hours:   Number(avgHours),
         upi_id:             upiId.trim(),
-        onboarding_complete: true,
-      }))
-
-      navigate('/verify-email', { state: { email: email.trim().toLowerCase() } })
+      })
+      navigate('/dashboard', { replace: true })
     } catch (err) {
-      const msg = err.message || 'Registration failed. Please try again.'
-      if (msg.includes('already registered') || msg.includes('already exists')) {
-        setError('An account with this email already exists. Sign in instead.')
-      } else {
-        setError(msg)
-      }
+      setError(err.message || 'Registration failed. Please try again.')
     } finally {
       setLoading(false)
     }

@@ -34,7 +34,7 @@ function AppNav({ profile }) {
   const location  = useLocation()
   const path      = location.pathname
   const signOut = () => {
-    if (DEMO_MODE) {
+    if (localStorage.getItem('arka_demo_user') === 'true') {
       localStorage.removeItem('arka_demo_user')
       localStorage.removeItem('arka_demo_profile')
       window.location.href = '/'
@@ -92,8 +92,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const init = async () => {
-      // ── DEMO MODE: load profile from localStorage ──
-      if (DEMO_MODE && localStorage.getItem('arka_demo_user') === 'true') {
+      // ── Always check for demo profile in localStorage first ──
+      if (localStorage.getItem('arka_demo_user') === 'true') {
         const demoProfile = JSON.parse(localStorage.getItem('arka_demo_profile') || '{}')
         setAuthUser({ id: demoProfile.id, email: demoProfile.email })
         setProfile(demoProfile)

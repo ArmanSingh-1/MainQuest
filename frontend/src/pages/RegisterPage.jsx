@@ -53,8 +53,16 @@ export default function RegisterPage() {
   const [loading, setLoading]         = useState(false)
   const [error, setError]             = useState('')
   const [success, setSuccess]         = useState('')
+  const [signupCooldown, setSignupCooldown] = useState(0)
 
   const strength = getStrength(password)
+
+  // Signup cooldown timer to prevent rate limiting
+  React.useEffect(() => {
+    if (signupCooldown <= 0) return
+    const timer = setTimeout(() => setSignupCooldown(signupCooldown - 1), 1000)
+    return () => clearTimeout(timer)
+  }, [signupCooldown])
 
   /* ── Validation ————————————————————————————————————————————— */
   const validateStep1 = () => {
@@ -95,6 +103,7 @@ export default function RegisterPage() {
   const handleRegister = async (e) => {
     e.preventDefault()
     setError('')
+    if (signupCooldown > 0) { setError(`Please wait ${signupCooldown}s before trying again.`); return }
     const err = validateStep2()
     if (err) { setError(err); return }
 
@@ -129,6 +138,7 @@ export default function RegisterPage() {
       }))
 
       // 3. Go to the email-verification waiting page
+      setSignupCooldown(30) // 30 second cooldown before can signup again
       navigate('/verify-email', { state: { email: email.trim().toLowerCase() } })
     } catch (err) {
       const msg = err.message || 'Registration failed. Please try again.'

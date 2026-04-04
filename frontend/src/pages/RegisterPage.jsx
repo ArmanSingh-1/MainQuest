@@ -101,7 +101,7 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       // ── Always use demo/local signup — bypasses Supabase email entirely ──
-      // This avoids rate limits on both local and hosted environments.
+      // Full page reload so App.jsx re-reads localStorage and sees the demo session.
       mockDemoSignup({
         email:              email.trim().toLowerCase(),
         full_name:          fullName.trim(),
@@ -113,7 +113,7 @@ export default function RegisterPage() {
         avg_weekly_hours:   Number(avgHours),
         upi_id:             upiId.trim(),
       })
-      navigate('/dashboard', { replace: true })
+      window.location.href = '/dashboard'
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.')
     } finally {

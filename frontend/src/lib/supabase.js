@@ -10,6 +10,8 @@ export const API_URL = import.meta.env.VITE_API_URL || 'https://arka-backend-8bg
 export const FRONTEND_URL = 'https://arka-5m1l.onrender.com'
 // Set to 'false' for dev/testing to skip email verification
 export const REQUIRE_EMAIL_VERIFICATION = import.meta.env.VITE_REQUIRE_EMAIL_VERIFICATION !== 'false'
+// Set to 'true' for unlimited testing without Supabase rate limits (mock auth)
+export const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {

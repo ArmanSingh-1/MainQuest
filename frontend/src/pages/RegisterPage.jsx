@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { supabase, FRONTEND_URL, REQUIRE_EMAIL_VERIFICATION } from '../lib/supabase'
+import { supabase, FRONTEND_URL, REQUIRE_EMAIL_VERIFICATION, DEMO_MODE } from '../lib/supabase'
 import {
   Shield, Mail, Lock, Eye, EyeOff, User, Phone,
   AlertCircle, ArrowRight, CheckCircle2, ChevronLeft,
@@ -109,18 +109,32 @@ export default function RegisterPage() {
 
     setLoading(true)
     try {
-      // 1. Create Supabase auth user (DB trigger auto-creates skeleton profile)
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: email.trim().toLowerCase(),
-        password,
-        options: {
-          data: { full_name: fullName.trim(), phone: phone.trim() },
-          emailRedirectTo: FRONTEND_URL + '/dashboard',
+      let signUpData = null
+      
+      if (DEMO_MODE) {
+        // Demo mode: simulate signup without actual Supabase call (allows unlimited testing)
+        signUpData = {
+          user: {
+            id: 'demo-user-' + Math.random().toString(36).substr(2, 9),
+            email: email.trim().toLowerCase(),
+          },
+          error: null,
         }
-      })
-      if (signUpError) throw signUpError
-
-      if (!data.user?.id) throw new Error('User creation failed. Please try again.')
+      } else {
+        // Production mode: real Supabase signup
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email: email.trim().toLowerCase(),
+          password,
+          options: {
+            data: { full_name: fullName.trim(), phone: phone.trim() },
+            emailRedirectTo: FRONTEND_URL + '/dashboard',
+          }
+        })
+        signUpData = { user: data?.user, error: signUpError }
+      }
+      
+      if (signUpData.error) throw signUpData.error
+      if (!signUpData.user?.id) throw new Error('User creation failed. Please try again.')
 
       // 2. Save full form data to localStorage.
       //    After the user clicks the verification email link and is signed in,
@@ -140,7 +154,7 @@ export default function RegisterPage() {
       // 3. Go to the email-verification waiting page or skip if not required
       setSignupCooldown(30) // 30 second cooldown before can signup again
       
-      if (REQUIRE_EMAIL_VERIFICATION) {
+      if (REQUIRE_EMAIL_VERIFICATION && !DEMO_MODE) {
         navigate('/verify-email', { state: { email: email.trim().toLowerCase() } })
       } else {
         // Dev mode: auto-proceed to dashboard (email not required)
